@@ -21,7 +21,12 @@ const schema = new mongoose.Schema({
             id: String,
             token: String
         }
-    }
+    },
+
+    introduce: String,
+    teaching_address: String,
+    price_per_hour: String,
+    tags: [String]
 });
 
 schema.set('toJSON', { getters: true, virtuals: true });

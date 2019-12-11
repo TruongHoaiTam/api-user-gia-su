@@ -61,6 +61,54 @@ router.post('/login/google', (req, res) => {
     })(req, res);
 });
 
+router.put('/update-info-register', (req, res) => {
+    console.log(req.body);
+    /* passport.authenticate('jwt', { session: false }, (err, user, info) => {
+        console.log(req.body)
+        if (err || !user) {
+            return res.status(400).json({
+                message: info ? info.message : 'Cập nhật thông tin đăng ký thất bại',
+                user
+            });
+        }
+        let update = {
+            username: (req.body.username == undefined) ? user.username : req.body.username,
+            email: (req.body.email == undefined) ? user.email : req.body.email,
+            fullname: (req.body.fullname == undefined) ? user.fullname : req.body.fullname,
+            phone: (req.body.phone == undefined) ? user.phone : req.body.phone,
+            birthday: (req.body.birthday == undefined) ? user.birthday : req.body.birthday,
+            address: (req.body.address == undefined) ? user.address : req.body.address,
+            avatar: (req.body.avatar !== undefined && req.body.avatar !== "undefined") ? req.body.avatar : "uploads\\no-avatar.jpg"
+        }
+        UserModel.updateOne({ _id: user._id }, update).then(() => {
+            return res.status(200).json(update);
+        })
+    }) */
+});
+
+
+router.put('/introduction', (req, res) => {
+    console.log(req.body);
+    /* passport.authenticate('jwt', { session: false }, (err, user, info) => {
+        console.log(req.body);
+        if (err || !user) {
+            return res.status(400).json({
+                message: info ? info.message : 'Cập nhật thông tin giới thiệu thất bại',
+                user
+            });
+        }
+        let update = {
+            introduce: (req.body.introduce == undefined) ? user.introduce : req.body.introduce,
+            teaching_address: (req.body.teaching_address == undefined) ? user.teaching_address : req.body.teaching_address,
+            price_per_hour: (req.body.price_per_hour == undefined) ? user.price_per_hour : req.body.price_per_hour,
+            tags: (req.body.tags == undefined) ? user.tags : req.body.tags.split(','),
+        }
+        UserModel.updateOne({ _id: user._id }, update).then(() => {
+            return res.status(200).json(update);
+        })
+    }); */
+});
+
 module.exports = router;
 
 
