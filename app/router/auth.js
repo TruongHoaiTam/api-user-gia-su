@@ -34,7 +34,11 @@ router.post('/login', (req, res) => {
             if (error) {
                 res.send(error);
             }
-            const token = jwt.sign({ user }, 'your_jwt_secret');
+            const _user = {
+                ...user._doc,
+                avatar: undefined
+            }
+            const token = jwt.sign({ _user }, 'your_jwt_secret');
             return res.status(200).json({ user, token });
         });
         return null;
@@ -46,7 +50,11 @@ router.post('/login/facebook', (req, res) => {
         if (err || !user) {
             return res.status(401).send('User Not Authenticated');
         }
-        const token = jwt.sign({ user }, 'bc3b8945b9ade2eee00b571a13677848');
+        const _user = {
+            ...user._doc,
+            avatar: undefined
+        }
+        const token = jwt.sign({ _user }, 'bc3b8945b9ade2eee00b571a13677848');
         return res.status(200).json({ user, token });
     })(req, res);
 });
@@ -56,15 +64,17 @@ router.post('/login/google', (req, res) => {
         if (err || !user) {
             return res.status(401).send('User Not Authenticated');
         }
-        const token = jwt.sign({ user }, 'rx-n9iou9gtjvCvqhRdtdgnp');
+        const _user = {
+            ...user._doc,
+            avatar: undefined
+        }
+        const token = jwt.sign({ _user }, 'rx-n9iou9gtjvCvqhRdtdgnp');
         return res.status(200).json({ user, token });
     })(req, res);
 });
 
-router.put('/update-info-register', (req, res) => {
-    console.log(req.body);
-    /* passport.authenticate('jwt', { session: false }, (err, user, info) => {
-        console.log(req.body)
+router.post('/update-info-register', (req, res) => {
+    passport.authenticate('jwt', { session: false }, async (err, user, info) => {
         if (err || !user) {
             return res.status(400).json({
                 message: info ? info.message : 'Cập nhật thông tin đăng ký thất bại',
@@ -78,19 +88,17 @@ router.put('/update-info-register', (req, res) => {
             phone: (req.body.phone == undefined) ? user.phone : req.body.phone,
             birthday: (req.body.birthday == undefined) ? user.birthday : req.body.birthday,
             address: (req.body.address == undefined) ? user.address : req.body.address,
-            avatar: (req.body.avatar !== undefined && req.body.avatar !== "undefined") ? req.body.avatar : "uploads\\no-avatar.jpg"
+            avatar: (req.body.avatar !== undefined && req.body.avatar !== "undefined") ? req.body.avatar : user.avatar
         }
-        UserModel.updateOne({ _id: user._id }, update).then(() => {
+        await UserModel.updateOne({ _id: user.id }, update).then(() => {
             return res.status(200).json(update);
         })
-    }) */
+    })(req, res);
 });
 
 
-router.put('/introduction', (req, res) => {
-    console.log(req.body);
-    /* passport.authenticate('jwt', { session: false }, (err, user, info) => {
-        console.log(req.body);
+router.post('/introduction', (req, res) => {
+    passport.authenticate('jwt', { session: false }, async (err, user, info) => {
         if (err || !user) {
             return res.status(400).json({
                 message: info ? info.message : 'Cập nhật thông tin giới thiệu thất bại',
@@ -103,10 +111,10 @@ router.put('/introduction', (req, res) => {
             price_per_hour: (req.body.price_per_hour == undefined) ? user.price_per_hour : req.body.price_per_hour,
             tags: (req.body.tags == undefined) ? user.tags : req.body.tags.split(','),
         }
-        UserModel.updateOne({ _id: user._id }, update).then(() => {
+        await UserModel.updateOne({ _id: user._id }, update).then(() => {
             return res.status(200).json(update);
         })
-    }); */
+    })(req, res);
 });
 
 module.exports = router;
