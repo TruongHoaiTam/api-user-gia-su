@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const schema = new mongoose.Schema({
+    _id: Object,
     avatar: String,
     email: String,
     username: String,
@@ -10,6 +11,7 @@ const schema = new mongoose.Schema({
     birthday: String,
     address: String,
     strategy: String,
+    status: String,
     facebookProvider: {
         type: {
             id: String,
@@ -26,7 +28,17 @@ const schema = new mongoose.Schema({
     introduce: String,
     teaching_address: String,
     price_per_hour: String,
-    tags: [String]
+    tags: [String],
+
+    contract: [{
+        current_learner: String,
+        current_teacher: String,
+        content: {
+            price_per_hour: String,
+            teaching_address: String,
+            tags: [String],
+        }
+    }]
 });
 
 schema.set('toJSON', { getters: true, virtuals: true });

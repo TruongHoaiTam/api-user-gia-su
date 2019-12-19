@@ -50,6 +50,7 @@ router.post('/login/facebook', (req, res) => {
         if (err || !user) {
             return res.status(401).send('User Not Authenticated');
         }
+        user.status = 'active';
         const _user = {
             ...user._doc,
             avatar: undefined
@@ -64,6 +65,7 @@ router.post('/login/google', (req, res) => {
         if (err || !user) {
             return res.status(401).send('User Not Authenticated');
         }
+        user.status = 'active';
         const _user = {
             ...user._doc,
             avatar: undefined
