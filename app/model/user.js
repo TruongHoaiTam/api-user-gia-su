@@ -31,8 +31,26 @@ const schema = new mongoose.Schema({
     tags: [String],
 
     contract: [{
-        current_learner: String,
-        current_teacher: String,
+        id: String,
+        current_learner: {
+            _id: String,
+            fullname: String,
+            phone: String,
+            birthday: String,
+            address: String,
+            email: String,
+            avatar: String
+        },
+        current_teacher: {
+            _id: String,
+            fullname: String,
+            phone: String,
+            birthday: String,
+            address: String,
+            email: String,
+            avatar: String
+        },
+        status: String,
         content: {
             price_per_hour: String,
             teaching_address: String,

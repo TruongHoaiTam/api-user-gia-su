@@ -66,18 +66,58 @@ router.put('/status', async (req, res) => {
         ...req.body,
         avatar: undefined
     }
-    await UserModel.updateOne({ _id: user._id }, option).then(() => {
+    await UserModel.updateOne({ _id: mongoose.Types.ObjectId(user._id) }, option).then(() => {
         return res.status(200).json(option);
     })
 })
 
 router.put('/contract', async (req, res) => {
-    let learnerContract = await UserModel.findOne({ _id: mongoose.Types.ObjectId(req.body.current_learner) });
-    let teacherContract = await UserModel.findOne({ _id: mongoose.Types.ObjectId(req.body.current_teacher) });
+    let learnerContract = await UserModel.findOne({ _id: mongoose.Types.ObjectId(req.body.current_learner._id) });
+    let teacherContract = await UserModel.findOne({ _id: mongoose.Types.ObjectId(req.body.current_teacher._id) });
+    req.body.status = 'still validate';
     learnerContract.contract.push(req.body);
     teacherContract.contract.push(req.body);
-    await UserModel.updateOne({ _id: mongoose.Types.ObjectId(req.body.current_learner) }, { contract: learnerContract.contract })
-    await UserModel.updateOne({ _id: mongoose.Types.ObjectId(req.body.current_teacher) }, { contract: teacherContract.contract })
+    await UserModel.updateOne({ _id: mongoose.Types.ObjectId(req.body.current_learner._id) }, { contract: learnerContract.contract })
+    await UserModel.updateOne({ _id: mongoose.Types.ObjectId(req.body.current_teacher._id) }, { contract: teacherContract.contract })
+    return res.status(200).json({ contract: req.body });
+})
+
+router.put('/contract/status', async (req, res) => {
+    let learnerContract = await UserModel.findOne({ _id: mongoose.Types.ObjectId(req.body.current_learner._id) });
+    let teacherContract = await UserModel.findOne({ _id: mongoose.Types.ObjectId(req.body.current_teacher._id) });
+    checkId = (item) => {
+        return item.id === req.body.id;
+    }
+    const indexLearnerContract = learnerContract.contract.findIndex(checkId);
+    learnerContract.contract[indexLearnerContract].status = 'forced terminate';
+    const indexTeacherContract = teacherContract.contract.findIndex(checkId);
+    teacherContract.contract[indexTeacherContract].status = 'forced terminate';
+
+    await UserModel.updateOne({ _id: mongoose.Types.ObjectId(req.body.current_learner._id) }, { contract: learnerContract.contract })
+    await UserModel.updateOne({ _id: mongoose.Types.ObjectId(req.body.current_teacher._id) }, { contract: teacherContract.contract })
+    return res.status(200).json({ contract: req.body });
+})
+
+router.get('/:_id', async (req, res) => {
+    const result = await UserModel
+        .findOne({ _id: mongoose.Types.ObjectId(req.params._id) })
+
+    res.status(200).json(result);
+});
+
+router.put('/contract/status/user', async (req, res) => {
+    let learnerContract = await UserModel.findOne({ _id: mongoose.Types.ObjectId(req.body.current_learner._id) });
+    let teacherContract = await UserModel.findOne({ _id: mongoose.Types.ObjectId(req.body.current_teacher._id) });
+    checkId = (item) => {
+        return item.id === req.body.id;
+    }
+    const indexLearnerContract = learnerContract.contract.findIndex(checkId);
+    learnerContract.contract[indexLearnerContract].status = 'finished';
+    const indexTeacherContract = teacherContract.contract.findIndex(checkId);
+    teacherContract.contract[indexTeacherContract].status = 'finished';
+
+    await UserModel.updateOne({ _id: mongoose.Types.ObjectId(req.body.current_learner._id) }, { contract: learnerContract.contract })
+    await UserModel.updateOne({ _id: mongoose.Types.ObjectId(req.body.current_teacher._id) }, { contract: teacherContract.contract })
     return res.status(200).json({ contract: req.body });
 })
 
