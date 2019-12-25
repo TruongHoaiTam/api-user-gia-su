@@ -25,6 +25,24 @@ router.get('/teacher', async (req, res) => {
     res.status(200).json(result);
 });
 
+router.get('/revenue/admin', async (req, res) => {
+    const teachers = await UserModel
+        .find({ strategy: 'teacher' })
+        .sort('fullname')
+    let data = [];
+    teachers.forEach((item) => {
+        item.contract.forEach((contract_item) => {
+            data.push({
+                fullname: item.fullname,
+                time: contract_item.id,
+                tags: item.tags,
+                money: item.price_per_hour * 50
+            })
+        })
+    })
+    return res.status(200).json(data);
+})
+
 router.post('/teacher', async (req, res) => {
     let optionAddress, optionPrice, optionSubject;
     switch (req.body.valuePrice) {
@@ -112,14 +130,43 @@ router.put('/contract/status/user', async (req, res) => {
         return item.id === req.body.id;
     }
     const indexLearnerContract = learnerContract.contract.findIndex(checkId);
-    learnerContract.contract[indexLearnerContract].status = 'finished';
+    learnerContract.contract[indexLearnerContract].status = (req.body.pending_complaint === true) ? 'pending complaint' : 'finished';
     const indexTeacherContract = teacherContract.contract.findIndex(checkId);
-    teacherContract.contract[indexTeacherContract].status = 'finished';
+    teacherContract.contract[indexTeacherContract].status = (req.body.pending_complaint === true) ? 'pending complaint' : 'finished';
 
     await UserModel.updateOne({ _id: mongoose.Types.ObjectId(req.body.current_learner._id) }, { contract: learnerContract.contract })
     await UserModel.updateOne({ _id: mongoose.Types.ObjectId(req.body.current_teacher._id) }, { contract: teacherContract.contract })
     return res.status(200).json({ contract: req.body });
 })
+
+router.put('/rate', async (req, res) => {
+    let teacher = await UserModel.findOne({ _id: mongoose.Types.ObjectId(req.body.id_teacher) });
+    let rate = (teacher.rate) ? teacher.rate : 0;
+    let num = (teacher.num) ? teacher.num : 0;
+    let data = {
+        rate: (rate * num + req.body.rate) / (num + 1),
+        num: num + 1,
+    }
+    await UserModel.updateOne({ _id: mongoose.Types.ObjectId(req.body.id_teacher) }, data)
+    return res.status(200).json(data)
+})
+
+router.put('/comment', async (req, res) => {
+    let teacher = await UserModel.findOne({ _id: mongoose.Types.ObjectId(req.body.id_teacher) });
+    teacher.comment.push(req.body.comment)
+    await UserModel.updateOne({ _id: mongoose.Types.ObjectId(req.body.id_teacher) }, { comment: teacher.comment })
+    return res.status(200).json(teacher)
+})
+
+router.get('/revenue/:_id', async (req, res) => {
+    let teacher = await UserModel.findOne({ _id: mongoose.Types.ObjectId(req.params._id) });
+    let data = {
+        count: teacher.contract.length,
+        revenue: teacher.contract.length * teacher.price_per_hour * 50 + 'VND'
+    }
+    return res.status(200).json(data);
+})
+
 
 module.exports = router;
 

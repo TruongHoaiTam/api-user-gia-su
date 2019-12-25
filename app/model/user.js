@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const schema = new mongoose.Schema({
-    _id: Object,
+    //_id: Object,
     avatar: String,
     email: String,
     username: String,
@@ -56,6 +56,14 @@ const schema = new mongoose.Schema({
             teaching_address: String,
             tags: [String],
         }
+    }],
+
+    rate: Number,
+    num: Number,
+    comment: [{
+        fullname: String,
+        avatar: String,
+        content: String
     }]
 });
 
