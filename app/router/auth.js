@@ -8,7 +8,6 @@ var mongoose = require('mongoose');
 
 
 router.post('/register', async (req, res) => {
-    console.log(req.body)
     await UserModel.findOne({ username: req.body.username })
         .then(async result => {
             if (result == null) {
@@ -49,7 +48,6 @@ router.post('/login', (req, res) => {
 });
 
 router.post('/introduction', (req, res) => {
-    console.log('a')
     passport.authenticate('jwt', { session: false }, async (err, user, info) => {
         if (err || !user) {
             return res.status(400).json({
@@ -124,6 +122,11 @@ router.post('/update-info-register', (req, res) => {
 
 router.put('/change-password', async (req, res) => {
     await UserModel.updateOne({ _id: mongoose.Types.ObjectId(req.body._id) }, { password: md5(req.body.new_password) })
+    return res.status(200).json(req.body);
+});
+
+router.put('/forgot-password', async (req, res) => {
+    await UserModel.updateOne({ username: req.body.username, fullname: req.body.fullname }, { password: md5(req.body.new_password) })
     return res.status(200).json(req.body);
 });
 

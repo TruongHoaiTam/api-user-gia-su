@@ -139,6 +139,40 @@ router.put('/contract/status/user', async (req, res) => {
     return res.status(200).json({ contract: req.body });
 })
 
+router.put('/contract/complaint/user', async (req, res) => {
+    let learnerContract = await UserModel.findOne({ _id: mongoose.Types.ObjectId(req.body.current_learner._id) });
+    let teacherContract = await UserModel.findOne({ _id: mongoose.Types.ObjectId(req.body.current_teacher._id) });
+    checkId = (item) => {
+        return item.id === req.body.id;
+    }
+    const indexLearnerContract = learnerContract.contract.findIndex(checkId);
+    learnerContract.contract[indexLearnerContract].status = 'finished';
+    const indexTeacherContract = teacherContract.contract.findIndex(checkId);
+    teacherContract.contract[indexTeacherContract].status = 'finished';
+
+    await UserModel.updateOne({ _id: mongoose.Types.ObjectId(req.body.current_learner._id) }, { contract: learnerContract.contract })
+    await UserModel.updateOne({ _id: mongoose.Types.ObjectId(req.body.current_teacher._id) }, { contract: teacherContract.contract })
+    return res.status(200).json({ contract: req.body });
+})
+
+router.delete('/contract', async (req, res) => {
+
+    let learnerContract = await UserModel.findOne({ _id: mongoose.Types.ObjectId(req.body.current_learner._id) });
+    let teacherContract = await UserModel.findOne({ _id: mongoose.Types.ObjectId(req.body.current_teacher._id) });
+    checkId = (item) => {
+        return item.id === req.body.id;
+    }
+    const indexLearnerContract = learnerContract.contract.findIndex(checkId);
+    const indexTeacherContract = teacherContract.contract.findIndex(checkId);
+
+    learnerContract.contract.splice(indexLearnerContract, 1)
+    teacherContract.contract.splice(indexTeacherContract, 1)
+
+    await UserModel.updateOne({ _id: mongoose.Types.ObjectId(req.body.current_learner._id) }, { contract: learnerContract.contract })
+    await UserModel.updateOne({ _id: mongoose.Types.ObjectId(req.body.current_teacher._id) }, { contract: teacherContract.contract })
+    return res.status(200).json(req.body);
+})
+
 router.put('/rate', async (req, res) => {
     let teacher = await UserModel.findOne({ _id: mongoose.Types.ObjectId(req.body.id_teacher) });
     let rate = (teacher.rate) ? teacher.rate : 0;
